@@ -1,6 +1,7 @@
 // Import the shader code
 import vsSource from './shaders/vertexShader.js';
 import fsSource from './shaders/fragmentShader.js';
+import vertexShader from './shaders/vertexShader.js';
 
 let squareRotation = 0.0;
 let deltaTime = 0;
@@ -68,18 +69,41 @@ function main() {
 
     // compute edges `a` and `b`
     // TODO ...
+    var a = vec3.create();
+    vec3.subtract(a, v1, v0);
+    var b = vec3.create();
+    vec3.subtract(b, v2, v0);
+    
 
     // normal is normalized cross product of edges
     // TODO ...
+    var n = vec3.create();
+    vec3.cross(n, a, b);
+    vec3.normalize(n, n);
 
     // add normal to all vertex normals of this triangle
     // TODO ...
+    for (var j = 0; j < 3; j++)
+    {
+      var vIndex = mesh.indices[3*i+j];
+      for(var k = 0; k < 3; k++)
+      {
+        mesh.vertexNormals[3*vIndex+k] += n[k] * Math.acos(vec3.dot(a, b));
+      }
+    }
   }
   
   // since we've added normals of all triangles a vertex is connected to, 
   // we need to normalize the vertex normals
-  for (var i = 0; i < mesh.vertexNormals.length/3; i++) {
+  for (var i = 0; i < mesh.vertexNormals.length/3; i++) 
+  {
     // TODO ...
+    var n = vec3FromArray(mesh.vertexNormals, i);
+    vec3.normalize(n, n);
+    for(var k = 0; k < 3; k++)
+    {
+      mesh.vertexNormals[3*i+k] = n[k];
+    }
   }
   // ====== END TASK 2 ======
 
@@ -87,9 +111,18 @@ function main() {
 
   // initialize the color array (Hint: remember that mesh.vertices is of length 3 * number of vertices (x, y, z each))
   // TODO ...
+  mesh.vertexColors = new Array(mesh.vertices.length/3*4).fill(1.0);
 
   // for each vertex set a custom color
   // TODO ...
+  for (var i = 0; i < mesh.vertices.length/3; i++)
+  {
+    var new_color = calcVertexColor(vec3FromArray(mesh.vertices, i));
+    for (var k = 0; k < 4; k++)
+    {
+      mesh.vertexColors[4*i+k] = new_color[k];
+    }
+  }
 
   // ====== END TASK 3a ======
   
@@ -101,12 +134,30 @@ function main() {
 
   // Vertices
   // TODO ...
+  let vertexDataPos = new Float32Array(mesh.vertices); 
+  const vertexBufferPos = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferPos);
+  gl.bufferData(gl.ARRAY_BUFFER, vertexDataPos, gl.STATIC_DRAW);
+  var location = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+  gl.vertexAttribPointer(location, 3, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(location);
 
   // Vertex Normals
   // TODO ...
+  let vertexDataNormals = new Float32Array(mesh.vertexNormals);
+  const vertexBufferNormals = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBufferNormals);
+  gl.bufferData(gl.ARRAY_BUFFER, vertexDataNormals, gl.STATIC_DRAW);
+  var location = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+  gl.vertexAttribPointer(location, 3, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(location);
 
   // Faces (i.e., vertex indices for forming the triangles)
   // TODO ...
+  let facesData = new Uint16Array(mesh.indices);
+  const bufferFaces = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufferFaces);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, facesData, gl.STATIC_DRAW);
 
   // ====== END TASK 1a ======
 
@@ -158,12 +209,48 @@ function main() {
 
     // set the shader program
     // TODO ...
+    /*var vertShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertShader, vsSource);
+    gl.compileShader(vertShader);
+    if(!gl.getShaderParameter(vertShader, gl.COMPILE_STATUS))
+    {
+      alert(gl.getShaderInfoLog(vertShader));
+      return;
+    }
+
+    var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragShader, fsSource);
+    gl.compileShader(fragShader);
+    if(!gl.getShaderParameter(fragShader, gl.COMPILE_STATUS))
+    {
+      alert(gl.getShaderInfoLog(fragShader));
+      return;
+    }
+
+    var shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertShader);
+    gl.attachShader(shaderProgram, fragShader);
+    gl.linkProgram(shaderProgram);
+    if(!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS))
+    {
+      alert("could not initialize shaders");
+    }*/
+    gl.useProgram(shaderProgram);
 
     // bind the location of the uniform variables
     // TODO ...
+    const uModelViewMatrix = gl.getUniformLocation(shaderProgram, "uModelViewMatrix");
+    gl.uniformMatrix4fv(uModelViewMatrix,false, modelViewMatrix);
+
+    const uProjectionMatrix = gl.getUniformLocation(shaderProgram, "uProjectionMatrix");
+    gl.uniformMatrix4fv(uProjectionMatrix, false, projectionMatrix);
+
+    const uLightPos = gl.getUniformLocation(shaderProgram, "uLightPos");
+    gl.uniform4fv(uLightPos, lightPos);
 
     // finally, draw the mesh
     // TODO ...
+    gl.drawElements(gl.TRIANGLES, mesh.indices.length, gl.UNSIGNED_SHORT, 0);
 
     // ====== END TASK 1b ======
 
