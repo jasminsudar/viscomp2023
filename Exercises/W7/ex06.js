@@ -9,9 +9,14 @@ let deltaTime = 0;
 main();
 
 // == HELPER FUNCTION FOR TASK 3a ==
-function calcVertexColor(pCoordinate) {
+function calcVertexColor(pCoordinate) 
+{
   // TODO: assign a new color
-  return vec4.fromValues(0.3, 0.3, 0.3, 1.0);
+  if (pCoordinate[1] < -8)
+    return vec4.fromValues(1.0, 0.25, 0.25, 1.0);
+  if (pCoordinate[1] < 9)
+    return vec4.fromValues(0.25, 1.0, 0.25, 1.0);
+  return vec4.fromValues(0.25, 0.25, 1.0, 1.0);
 }
 // ==== END HELPER FUNCTION ====
 
@@ -151,6 +156,13 @@ function main() {
   var location = gl.getAttribLocation(shaderProgram, "aVertexNormal");
   gl.vertexAttribPointer(location, 3, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(location);
+  // Vertex Colors
+  var tmpBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, tmpBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mesh.vertexColors), gl.STATIC_DRAW);
+  var location = gl.getAttribLocation(shaderProgram, "aVertexColor");
+  gl.vertexAttribPointer(location, 4, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(location);
 
   // Faces (i.e., vertex indices for forming the triangles)
   // TODO ...
@@ -202,6 +214,12 @@ function main() {
     // ======== TASK 3b ========
 
     // TODO ...
+    mat4.rotate(
+      modelViewMatrix, // destination matrix
+      modelViewMatrix, // matrix to rotate
+      squareRotation/2, // amount to rotate in radians
+      [0, 0, 1], // axis to rotate around
+    ); 
 
     // ====== END TASK 3b ======
 
