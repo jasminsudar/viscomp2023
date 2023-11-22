@@ -271,6 +271,7 @@ function getCameraMatrix() {
   // 'upvec' is to ensure that the camera is oriented upwards
 
   // ...
+  mat4.targetTo(TR, camPos, camDir, camUp); //J
 
   return TR; 
 }
@@ -283,6 +284,7 @@ function getViewMatrix() {
   // Hint: the view matrix does the opposite of the camera matrix (why?)
   
   // ...
+  V = getCameraMatrix().invert(); //J
 
   return V; 
 }
@@ -298,6 +300,10 @@ function getModelMatrix() {
   // Helpful functions: mat4.rotateX(...), mat4.translate(...), mat4.scale(...)
   
   // ...
+  mat4.scale(M, M, objectScale); //J
+  mat4.translate(M, M, objectPosition); //J
+  mat4.rotateX(M, M, objectRotation); //J
+  mat4.rotateY(M, M, globalTime); //J
 
   // Rotation around the object's z-axis (camera's y-axis) for when pressing the space key
   mat4.rotateZ(M, M, globalTime);
