@@ -189,7 +189,12 @@ function moveCamera(dist, sideways) {
   // then translate 'camPos' by the appropriate amount in this direction.
   // Helpful functions: vec3.cross(...), vec3.scale(...), vec3.add(...)
   
-  // ...
+  var d = camDir.slice();
+  if(sideways) {
+      vec3.cross(d, camUp, d); // gives the third axis of camera coordinate system (direction of movement)
+  }
+  vec3.scale(d, d, dist); // scale the direction by the distance
+  vec3.add(camPos, camPos, d); // translate the camera position by that distance vector
 
 }
 
@@ -198,7 +203,8 @@ function rotateCameraY(angle) {
   // Rotate the camera by 'angle' around the y-axis.
   // Hint: use vec.rotateY(...) (what's the origin of rotation?)
   
-  // ...
+  var origin = camPos; // rotate around the camera center
+  vec3.rotateY(camDir, camDir, origin, angle);
 
 }
 
@@ -207,15 +213,15 @@ function rotateCameraX(angle) {
   // Rotate the camera by 'angle' around the x-axis.
   // Hint: use vec.rotateX(...) (what's the origin of rotation?)
  
-  // ...
+  var origin = camPos; // rotate around the camera center
+  vec3.rotateX(camDir, camDir, origin, angle);
 
 }
 
 function moveLight(d) {
 
   // Translate the light position by 'd'
-  
-  // ...
+  vec3.add(lightPos, lightPos, d);
 
 }
 // ==== END TASK 2 ====
@@ -270,8 +276,10 @@ function getCameraMatrix() {
   // 'target' is where the camera points at
   // 'upvec' is to ensure that the camera is oriented upwards
 
-  // ...
-  mat4.targetTo(TR, camPos, camDir, camUp); //J
+  let eye = camPos;
+  var target = [0., 0., 0.];
+  vec3.add(target, camPos, camDir); // target is current position + viewing direction
+  mat4.targetTo(TR, eye, target, camUp);
 
   return TR; 
 }
@@ -282,9 +290,7 @@ function getViewMatrix() {
   let V = mat4.create();
 
   // Hint: the view matrix does the opposite of the camera matrix (why?)
-  
-  // ...
-  V = getCameraMatrix().invert(); //J
+  mat4.invert(V, getCameraMatrix());
 
   return V; 
 }
@@ -299,11 +305,13 @@ function getModelMatrix() {
   // such that a point is first rotated, then translated, then scaled (keep in mind that the first transformation is applied last)
   // Helpful functions: mat4.rotateX(...), mat4.translate(...), mat4.scale(...)
   
-  // ...
-  mat4.scale(M, M, objectScale); //J
-  mat4.translate(M, M, objectPosition); //J
-  mat4.rotateX(M, M, objectRotation); //J
-  mat4.rotateY(M, M, globalTime); //J
+  // Note: Transformations are to be listed in reverse order because the points are multiplied from the right.
+  // The order can be changed arbitrarily, but beware that then the scaling factor, translation vector, and rotation axes change as well (!)
+  mat4.scale(M, M, objectScale);
+  mat4.translate(M, M, objectPosition); 
+  mat4.rotateX(M, M, objectRotation[0]);
+  mat4.rotateY(M, M, objectRotation[1]);
+  mat4.rotateZ(M, M, objectRotation[2]);
 
   // Rotation around the object's z-axis (camera's y-axis) for when pressing the space key
   mat4.rotateZ(M, M, globalTime);
