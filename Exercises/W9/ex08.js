@@ -189,7 +189,14 @@ function moveCamera(dist, sideways) {
   // then translate 'camPos' by the appropriate amount in this direction.
   // Helpful functions: vec3.cross(...), vec3.scale(...), vec3.add(...)
   
-  // ...
+  //sol:
+  var d = camDir.slice();
+  if(sideways)
+  {
+    vec3.cross(d, camUp, d); // gives the third axis of camera coordinate system (direction of movement) 
+  }
+  vec3.scale(d, d, dist); // scale the direction by the distance
+  vec3.add(camPos, camPos, d); // translate the camera position by that distance vector
 
 }
 
@@ -198,7 +205,9 @@ function rotateCameraY(angle) {
   // Rotate the camera by 'angle' around the y-axis.
   // Hint: use vec.rotateY(...) (what's the origin of rotation?)
   
-  // ...
+  // sol:
+  var origin = camPos; // rotate around the camera center
+  vec3.rotateY(camDir, camDir, origin, angle);  
 
 }
 
@@ -207,7 +216,9 @@ function rotateCameraX(angle) {
   // Rotate the camera by 'angle' around the x-axis.
   // Hint: use vec.rotateX(...) (what's the origin of rotation?)
  
-  // ...
+  // sol:
+  var origin = camPos; // rotate around the camera center
+  vec3.rotateX(camDir, camDir, origin, angle);
 
 }
 
@@ -215,7 +226,8 @@ function moveLight(d) {
 
   // Translate the light position by 'd'
   
-  // ...
+  //sol:
+  vec3.add(lightPos, lightPos, d);
 
 }
 // ==== END TASK 2 ====
@@ -271,7 +283,12 @@ function getCameraMatrix() {
   // 'upvec' is to ensure that the camera is oriented upwards
 
   // ...
-  mat4.targetTo(TR, camPos, camDir, camUp); //J
+  //mat4.targetTo(TR, camPos, camDir, camUp); //J
+//sol:
+let eye = camPos;
+var target = [0., 0., 0.];
+vec3.add(target, camPos, camDir); // target is current position + viewing direction
+mat4.targetTo(TR, eye, target, camUp);
 
   return TR; 
 }
@@ -284,7 +301,9 @@ function getViewMatrix() {
   // Hint: the view matrix does the opposite of the camera matrix (why?)
   
   // ...
-  V = getCameraMatrix().invert(); //J
+  //V = getCameraMatrix().invert(); //J
+ //sol:
+ mat4.invert(V, getCameraMatrix());
 
   return V; 
 }
@@ -302,8 +321,10 @@ function getModelMatrix() {
   // ...
   mat4.scale(M, M, objectScale); //J
   mat4.translate(M, M, objectPosition); //J
-  mat4.rotateX(M, M, objectRotation); //J
-  mat4.rotateY(M, M, globalTime); //J
+  mat4.rotateX(M, M, objectRotation[0]); //J
+  mat4.rotateY(M, M, objectRotation[1]); //sol
+  mat4.rotateZ(M, M, objectRotation[2]);
+  //mat4.rotateY(M, M, globalTime); //J
 
   // Rotation around the object's z-axis (camera's y-axis) for when pressing the space key
   mat4.rotateZ(M, M, globalTime);
