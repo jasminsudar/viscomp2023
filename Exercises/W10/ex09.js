@@ -21,20 +21,21 @@ function rearrange(mesh) {
       // Categorize based on the Y-coordinate
       if(mesh.indices[i][1]<-8)
       {
-        newIndices_1.concat(mesh.indices[i]);
+        newIndices_1.push(mesh.indices[i], mesh.indices[i+1], mesh.indices[i+2]);
       }
       else if(mesh.indices[i][1]<9)
       {
-        newIndices_2.concat(mesh.indices[i]);
+        newIndices_2.push(mesh.indices[i], mesh.indices[i+1], mesh.indices[i+2]);
       }
       else
       {
-        newIndices_3.concat(mesh.indices[i]);
+        newIndices_3.push(mesh.indices[i], mesh.indices[i+1], mesh.indices[i+2]);
       }
 
   }
 
   // Concatenate all new indices
+  
 
 }
 // == END TASK 1a == //
@@ -92,6 +93,7 @@ function sortDecorativeBalls(ballCoordinates, uModelViewMatrix) {
   // ballCoordinates is an array of vec3 elements.
   // uModelViewMatrix is a mat4 matrix
   // Transform coordinates and store them with their original indices
+  
 
   sortedIndices = [0, 1, 2];
 
@@ -146,10 +148,10 @@ function main() {
   // TODO: Fill the code in each function
   
   // == TASK 1a == //
-  //   rearrange(mesh);
+     rearrange(mesh);
 
   // == TASK 1b == //
-  //   var decorativeBallCenters = getDecorativeBallCenters(mesh);
+    var decorativeBallCenters = getDecorativeBallCenters(mesh);
 
   // == END TASK 1 == //
 
