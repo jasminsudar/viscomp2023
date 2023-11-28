@@ -19,6 +19,18 @@ function rearrange(mesh) {
 
   for (let i = 0; i < mesh.indices.length; i += 3) {
       // Categorize based on the Y-coordinate
+      if(mesh.indices[i][1]<-8)
+      {
+        newIndices_1.concat(mesh.indices[i]);
+      }
+      else if(mesh.indices[i][1]<9)
+      {
+        newIndices_2.concat(mesh.indices[i]);
+      }
+      else
+      {
+        newIndices_3.concat(mesh.indices[i]);
+      }
 
   }
 
@@ -34,6 +46,40 @@ function getDecorativeBallCenters(mesh) {
   var centerGroup1 = vec3.create();
   var centerGroup2 = vec3.create();
   var centerGroup3 = vec3.create();
+
+  let sumX = 0; 
+  let sumY = 0;
+  let sumZ = 0;
+
+  for(let i = 0; i < newIndices_1.length; i++)
+  {
+    sumX += newIndices_1[i][0];
+    sumY += newIndices_1[i][1];
+    sumZ += newIndices_1[i][2];
+  }
+  centerGroup1 = [sumX / newIndices_1.length, sumY/newIndices_1.length, sumZ/newIndices_1.length];
+  sumX = 0;
+  sumY = 0;
+  sumZ = 0;
+
+  for(let i = 0; i < newIndices_2.length; i++)
+  {
+    sumX += newIndices_2[i][0];
+    sumY += newIndices_2[i][1];
+    sumZ += newIndices_2[i][2];
+  }
+  centerGroup2 = [sumX / newIndices_2.length, sumY/newIndices_2.length, sumZ/newIndices_2.length];
+  sumX = 0;
+  sumY = 0;
+  sumZ = 0;
+  
+  for(let i = 0; i < newIndices_3.length; i++)
+  {
+    sumX += newIndices_3[i][0];
+    sumY += newIndices_3[i][1];
+    sumZ += newIndices_3[i][2];
+  }
+  centerGroup3 = [sumX / newIndices_3.length, sumY/newIndices_3.length, sumZ/newIndices_3.length];
 
   return [centerGroup1, centerGroup2, centerGroup3];
 }
@@ -213,6 +259,9 @@ function main() {
 
     // == TASK 2 == //
     // TODO: Enable blending mode and set up the blending function
+    
+    gl.enable(gl.BLEND);
+    gl.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // TODO: Please also change the necessary code in vertexShader
 
@@ -262,7 +311,7 @@ function main() {
 
     // ======== TASK 3a ========
     // TODO: Get orders based on current modelViewMatrix
-    // var orders = sortDecorativeBalls(decorativeBallCenters, modelViewMatrix);
+     var orders = sortDecorativeBalls(decorativeBallCenters, modelViewMatrix);
     
     // ======== TASK 3b ======== // 
     // TODO: Draw the balls in order

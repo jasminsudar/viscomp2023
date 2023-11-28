@@ -41,6 +41,6 @@ export default /*glsl*/`
 
     // === TASK 2 === //
     // TODO: Update alpha value
-    vColor[3] = 1.0; // alpha value
+    vColor[3] = 0.5;//1.0; // alpha value
   }
   `;
