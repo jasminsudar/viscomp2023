@@ -22,8 +22,14 @@ export default /*glsl*/`
   vec2 computeDiffuseSpecIntens(in vec3 position, in vec3 normal, in vec3 cameraPos, in vec3 lightPos)
   {
     // TODO ...
+    vec3 L = normalize(lightPos - position);
+    vec3 V = normalize(cameraPos - position);
+    vec3 R = reflect(L, normal); 
 
-    return vec2(1, 0);	    // Return dummy value
+    float diffuse =  max(dot(normal, L), 0.0);
+    float spec = pow(max(dot(R, V), 0.0), 2.0);
+
+    return vec2(diffuse, spec);	    // Return dummy value
   }
   // ====== END TASK 1a) ======
 
