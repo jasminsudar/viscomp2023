@@ -187,7 +187,29 @@ function main() {
     // bitangent. Don't forget to normalize.
 
     // TODO ...
+    /*vec3.scaleAndAdd(tang, vec3.create(), a, M_inv[0]); // tangent = xi_a * a + xi_b * b
+    vec3.scaleAndAdd(tang, tan, b, M_inv[1]);       // tangent += xi_b * b
 
+    vec3.scaleAndAdd(bitang, vec3.create(), a, M_inv[2]); // bitangent = eta_a * a + eta_b * b
+    vec3.scaleAndAdd(bitang, bitang, b, M_inv[3]);     // bitangent += eta_b * b
+
+    // Normalize the vectors
+    vec3.normalize(tang, tang);
+    vec3.normalize(bitang, bitang);*/
+
+    //sol:
+    tang[0] = a[0] * M_inv[0] + b[0] * M_inv[1];
+    tang[1] = a[1] * M_inv[0] + b[1] * M_inv[1];
+    tang[2] = a[2] * M_inv[0] + b[2] * M_inv[2];
+
+    bitang[0] = a[0] * M_inv[2] + b[0] * M_inv[3];
+    bitang[1] = a[1] * M_inv[2] + b[1] * M_inv[3];
+    bitang[2] = a[2] * M_inv[2] + b[2] * M_inv[3];
+
+    vec3.normalize(tang, tang);
+    vec3.normalize(bitang, bitang);
+
+    
     // ================ END TASK 3a) ===================
 
 

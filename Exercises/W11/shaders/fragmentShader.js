@@ -22,11 +22,12 @@ export default /*glsl*/`
   vec2 computeDiffuseSpecIntens(in vec3 position, in vec3 normal, in vec3 cameraPos, in vec3 lightPos)
   {
     // TODO ...
+    vec3 N = normalize(normal);
     vec3 L = normalize(lightPos - position);
     vec3 V = normalize(cameraPos - position);
-    vec3 R = reflect(L, normal); 
+    vec3 R = - reflect(L, N); 
 
-    float diffuse =  max(dot(normal, L), 0.0);
+    float diffuse =  max(dot(N, L), 0.0);
     float spec = pow(max(dot(R, V), 0.0), 2.0);
 
     return vec2(diffuse, spec);	    // Return dummy value
@@ -54,11 +55,14 @@ export default /*glsl*/`
     // Perturb the normals using normal map. Look up the RGB color values in the normal map
     // and use them to perturb the world tangent, world bitangent and world normal.
     // TODO ...
-  
-    vec3 normal = normalize(world_normal.xyz);  // Use pre-computed world normals
+    vec3 normalMap = texture2D(uSamplerNormalMap, texCoord).rgb;
+    normalMap = normalize(normalMap);
+    vec3 normal = normalize(world_tang.xyz) * normalMap.r + normalize(world_bitang.xyz) * normalMap.g + normalize(world_normal.xyz) * normalMap.b;
+    normal = normalize(normal);
+
+    //vec3 normal = normalize(world_normal.xyz);  // Use pre-computed world normals
     // ======== END TASK 3a) ========
     
-
     // Phong model
     vec2 diffuseIntensitySpec = computeDiffuseSpecIntens(world_pos.xyz, normal, uCameraPos.xyz, world_light.xyz);
     vec4 vColor = txtColor*(diffuseIntensitySpec.x * diffuse + diffuseIntensitySpec.y * specular + ambient);
@@ -69,10 +73,15 @@ export default /*glsl*/`
     // Image-based lighting. Reflect the 'camera to pixel' vector at the normal and use this reflected vector
     // to perform a texture lookup into the cube map 'txtEnvMap', using the 'textureCube' command.
     // TODO ...
+    float reflTerm = 1.0 - clamp(dot(normalize(uCameraPos.xyz - world_pos.xyz), normal), 0.0, 1.0);
+    vec3 r = reflect(normalize(world_pos.xyz - uCameraPos.xyz), normal);
+    r = (uViewSkyboxMatrix * vec4(r.x, r.y, r.z, 0.0)).xyz;
+    vec4 colorCube = textureCube(uSamplerEnvMap, r);
+    vec4 colReflected = colorCube * reflTerm;
 
-    vec4 colReflected = vec4(0.0, 0.0, 0.0, 0.0);  // Use dummy value
+    //vec4 colReflected = vec4(0.0, 0.0, 0.0, 0.0);  // Use dummy value
     // ======== END TASK 4a) ========
-	
+    
     
     gl_FragColor = vColor + 0.8 * colReflected; 
   } 
