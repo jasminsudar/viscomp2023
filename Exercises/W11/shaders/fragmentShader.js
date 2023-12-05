@@ -43,8 +43,10 @@ export default /*glsl*/`
     // ======== TASK 2b) ========
     // Perform a texture lookup into bauble texture.
     // TODO ...
+    
+    
 
-    vec4 txtColor = color;    // Return RGB color value
+    vec4 txtColor = texture2D(uSamplerTexture, texCoord); //color;    // Return RGB color value
     // ======== END TASK 2b) ========
 
 
